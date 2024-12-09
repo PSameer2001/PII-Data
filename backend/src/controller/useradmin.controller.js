@@ -36,13 +36,13 @@ const login = async (req, h) => {
       { expiresIn: "1h" } // Token expires in 1 hour
     );
 
-    // h.state("admintoken", token, {
-    //   ttl: 60 * 60 * 1000, // 1 hour
-    //   isHttpOnly: true,
-    //   isSecure: false, // Should be true in production with HTTPS
-    //   path: "/",
-    //   sameSite: "Lax",
-    // });
+    h.state("admintoken", token, {
+      ttl: 60 * 60 * 1000, // 1 hour
+      isHttpOnly: true,
+      isSecure: false, // Should be true in production with HTTPS
+      path: "/",
+      sameSite: "Lax",
+    });
 
     // Return the token
     return h
@@ -59,7 +59,7 @@ const login = async (req, h) => {
 };
 
 const logout = async (req, h) => {
-//   h.unstate("admintoken"); // This removes the 'token' cookie from the client
+  h.unstate("admintoken"); // This removes the 'token' cookie from the client
 
   return h.response({
     status: "success",
@@ -108,14 +108,13 @@ const getAllData =  async (req, h) => {
     const user = await User.findAll({
       where : {
         [Op.not]: {
-          email: decoded.email 
+          email: decoded.email // except logged email
         },
-        isAdmin: false
+        isAdmin: false // except admin data
       },
-      attributes: { exclude: ['password'] },  // Find the user by ID
+      attributes: { exclude: ['password'] },
       include: {
-        model: UserData,  // Include the Profile model
-          // Only fetch the phone and address fields from the profile
+        model: UserData,  
       },
     });
 

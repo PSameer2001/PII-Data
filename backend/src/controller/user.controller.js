@@ -8,6 +8,7 @@ const Boom = require("@hapi/boom");
 
 const register = async (req, h) => {
   try {
+    // get data from payload
     const { fullName: name, email, password } = req.payload;
 
     // Check if the user already exists
@@ -32,7 +33,7 @@ const register = async (req, h) => {
     };
     await User.create(newUser);
 
-    // Return the token
+    // Return the response
     return h.response({ message: "Signup successful" }).code(201);
   } catch (error) {
     return h.response({ message: error.message }).code(400);
@@ -51,11 +52,13 @@ const login = async (req, h) => {
       return h.response({ message: "Invalid Credentials" }).code(400);
     }
 
+    // Compare the password
     const isCorrectpassword = await bcrypt.compare(
       password,
       userExists.password
     );
 
+    //  if not true return this response
     if (!isCorrectpassword) {
       return h.response({ message: "Invalid Credentials" }).code(400);
     }
@@ -67,6 +70,7 @@ const login = async (req, h) => {
       { expiresIn: "1h" } // Token expires in 1 hour
     );
 
+    // Store token in cookie
     h.state("token", token, {
       ttl: 60 * 60 * 1000, // 1 hour
       isHttpOnly: true,
@@ -75,7 +79,7 @@ const login = async (req, h) => {
       sameSite: "Lax",
     });
 
-    // Return the token
+    // Return the data in response
     return h
       .response({
         message: "Login successful",
@@ -101,6 +105,7 @@ const logout = async (req, h) => {
 const checkAuth = async (request, h) => {
   const token = request.state.token; // Get the token from the cookie
 
+  // no token return response
   if (!token) {
     return h.response({ message: "unauthorized User" });
   }
@@ -109,14 +114,17 @@ const checkAuth = async (request, h) => {
     // Verify the token and decode user data
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
+    // check if email which is get from decoded token is exist in db
     const userExists = await User.findOne({
       where: { email: decoded.email },
     });
 
+    //  No user exist ,send invalid user
     if (!userExists) {
       return h.response({ message: "Invalid" }).code(400);
     }
 
+    // if exist then send the decoded data
     return h.response({ message: "Verified", decoded }).code(201);
   } catch (err) {
     // If token is invalid or expired, throw unauthorized error
@@ -128,6 +136,7 @@ const verifyJwtMiddleware = async (request, h) => {
   try {
     const token = request.state?.token; // Get the token from the cookie
 
+      // no token return response
     if (!token) {
       return h
         .response({ message: "Invalid or expired token" })
@@ -164,6 +173,7 @@ const updateData = async (req, h) => {
       return h.response({ message: "Invalid User" }).code(400);
     }
 
+    // Update the name and save
     userExists.name = name;
     await userExists.save();
 
@@ -172,6 +182,7 @@ const updateData = async (req, h) => {
       where: { user_id: userExists.id },
     });
 
+    // If not exist create new entry
     if (!userdataExists) {
       const newUserData = {
         user_id: userExists.id,
@@ -184,6 +195,7 @@ const updateData = async (req, h) => {
       };
       await UserData.create(newUserData);
     } else {
+      // If  exist update entry
       await UserData.update(
         { phone, dob, address, gender, aadhar, pan },
         {
@@ -198,6 +210,7 @@ const updateData = async (req, h) => {
 
     updatedUser.name = userExists.name
 
+    // return response
     return h
     .response({
       message: "User updated successfully",
@@ -217,11 +230,11 @@ const getData = async (req, h) => {
   try {
     // Find the user along with the associated profile using 'include'
     const user = await User.findOne({
-      where: { email: req.user.email },
-      attributes: { exclude: ['password'] },  // Find the user by ID
+      where: { email: req.user.email }, // Find the user by email
+      attributes: { exclude: ['password'] },  //  fetch all  except password from User
       include: {
-        model: UserData,  // Include the Profile model
-          // Only fetch the phone and address fields from the profile
+        model: UserData,  // Include the UserData model
+          
       },
     });
 

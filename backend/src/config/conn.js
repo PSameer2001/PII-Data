@@ -1,3 +1,4 @@
+//  Connection to mysql DB 
 const Sequelize = require('sequelize');
 
 const sequelize = new Sequelize('pii_db', "root", "", {
