@@ -23,3 +23,13 @@ Flow of the backend:
 5. For validation and authorization added in routerOption folder which is linked to routes in routers folder.
 6. All handler function is added in controller folder which is linked to routes in routers folder.
 
+
+Running this project:
+1. open first terminal
+2. cd frontend
+3. npm run dev
+
+4. now open 2nd terminal
+5. cd backend
+6. npm start
+
