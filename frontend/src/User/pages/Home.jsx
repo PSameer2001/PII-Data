@@ -48,7 +48,7 @@ const Home = () => {
         <div className="xl:max-w-7xl bg-white drop-shadow-xl border border-black/20 w-full rounded-md flex justify-between items-stretch px-5 xl:px-5 py-5">
           <div className="mx-auto w-full lg:w-1/2 md:p-10 py-5 md:py-0">
             <h1 className="text-center text-2xl sm:text-3xl font-semibold text-[#4A07DA]">
-              Personal Identifiablen Information
+              Personal Identifiable Information
             </h1>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="w-full mt-5 sm:mt-8">
